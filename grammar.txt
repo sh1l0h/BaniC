@@ -5,6 +5,7 @@ primary_expression              : WORD
                                 | 'null'
                                 | 'true' | 'false'
                                 | '(' expression ')'
+                                ;
 
 postfix_expression              : primary_expression
                                 | postfix_expression '[' expression ']'
@@ -13,9 +14,11 @@ postfix_expression              : primary_expression
                                 | postfix_expression '.' WORD
                                 | postfix_expression '++'
                                 | postfix_expression '--'
+                                ;
 
 argument_expression_list        : argument_expression
                                 | argument_expression_list ',' argument_expression
+                                ;
 
 unary_expression                : postfix_expression
                                 | '++' unary_expression
@@ -24,58 +27,74 @@ unary_expression                : postfix_expression
                                 | 'sizeof' unary_expresiion
                                 | 'sizeof' type_name
                                 | 'sizeof' '(' type_name ')'
+                                ;
 
 unary_operator                  : '&' | '*' | '!' | '~' | '-' 
+                                ;
 
 multiplicative_expression       : unary_expression
                                 | multiplicative_expression '*' unary_expression
                                 | multiplicative_expression '/' unary_expression
                                 | multiplicative_expression '%' unary_expression
+                                ;
 
 additive_expression             : multiplicative_expression
                                 | additive_expression '+' multiplicative_expression
                                 | additive_expression '-' multiplicative_expression
+                                ;
 
 shift_expression                : additive_expression
                                 | shift_expression 'shl' additive_expression
                                 | shift_expression 'shr' additive_expression
+                                ;
 
 relational_expression           : shift_expression
                                 | relational_expression '<' shift_expression
                                 | relational_expression '>' shift_expression
                                 | relational_expression '>=' shift_expression
                                 | relational_expression '<=' shift_expression
+                                ;
 
 equality_expression             : relational_expression
                                 | equality_expression '==' relational_expression
                                 | equality_expression '!=' relational_expression
+                                ;
 
 and_expression                  : equality_expression
 	                            | and_expression '&' equality_expression
+                                ;
 
 exclusive_or_expression         : and_expression
 	                            | exclusive_or_expression '^' and_expression
+                                ;
 
 inclusive_or_expression         : exclusive_or_expression
 	                            | inclusive_or_expression '|' exclusive_or_expression
+                                ;
 
 logical_and_expression          : inclusive_or_expression
 	                            | logical_and_expression '&&' inclusive_or_expression
+                                ;
 
 logical_or_expression           : logical_and_expression
 	                            | logical_or_expression '||' logical_and_expression
+                                ;
 
 conditional_expression          : logical_or_expression
 	                            | logical_or_expression '?' expression ':' conditional_expression
+                                ;
 
 assignment_expression           : conditional_expression
                                 | unary_expression assignment_operator expression
+                                ;
 
 assignment_operator             : '=' | '*=' | '/=' | '%=' | '+=' | '-='
 	                            | '&=' | '^=' | '|='
+                                ;
 
 expression                      : assignment_expresion
                                 | expression 'as' type_name
+                                ;
 
 type_specifier                  : 'i8' | 'i16' | 'i32' | 'i64' 
                                 | 'u8' | 'u16' | 'u32' | 'u64' 
@@ -84,28 +103,36 @@ type_specifier                  : 'i8' | 'i16' | 'i32' | 'i64'
                                 | 'void'
                                 | '>' '(' type_name_list ')' -> type_name
                                 | WORD
+                                ;
 
 qualifier_type_specifier        : type_specifier
                                 | 'const' type_specifier
+                                ;
 
 pointer_or_array                : '>'
                                 | '[' ']' | '[' expression ']'
+                                ;
 
 qualifier_pointer_or_array      : poiter_or_array
                                 | 'const' pointer_or_array
+                                ;
 
 qualifier_pointer_or_array_list : qualifier_pointer_or_array
                                 | qualifier_pointer_or_array_list qualifier_pointer_or_array
+                                ;
 
 type_name                       : qualifier_type_specifier 
                                 | qualifier_pointer_or_array_list qualifier_type_speciafier
+                                ;
 
 type_name_list                  : type_name
                                 | type_name_list ',' type_name
+                                ;
 
-dec                             : WORD ':' type_name ';' 
-                                | WORD ':''=' expression ';'
+declaration                     : WORD ':' type_name ';' 
+                                | WORD ':' '=' expression ';'
                                 | WORD ':' type_name '=' expression ';'
+                                ;
 
 statement                       : expresion_statement
                                 | jump_statement
@@ -114,27 +141,99 @@ statement                       : expresion_statement
                                 | compound_statement
                                 | if_statement
                                 | 'switch' expresion compound_statement
+                                | declaration
+                                ;
 
 statement_list                  : statement
                                 | statement_list statement
+                                ;
 
 expression_statement            : ';'
                             	| expression ';'
+                                ;
 
 compound_statement              : '{' '}'
                                 | '{' statement_list '}'
+                                ;
 
 if_statement                    : 'if' expression compound_statement
                                 | 'if' expression compound_statement 'else' compound_statement
                                 | 'if' expression compound_statement 'else' if_statement
+                                ;
 
 jump_statement                  : 'goto' IDENTIFIER ';'
                                 | 'continue' ';'
-	                            | 'break' ';'
-	                            | 'return' ';'
-	                            | 'return' expression ';'
- 
+                                | 'break' ';'
+                                | 'return' ';'
+                                | 'return' expression ';'
+                                ;
+
 iteration_statement             : 'while' expression compound_statement
-	                            | 'do' compound_statement 'while' expression ';'
-	                            | 'for' expression_statement expression_statement compound_statement
-	                            | 'for' expression_statement expression_statement expression compound_statement
+                                | 'do' compound_statement 'while' expression ';'
+                                | 'for' expression_statement expression_statement compound_statement
+                                | 'for' expression_statement expression_statement expression compound_statement
+                                ;
+
+struct_field_specifier          : WORD ':' type_name
+                                | 'owned' WORD ':' type_name
+                                ;
+
+struct_field                    : struct_field_specifier
+                                | struct_field_specifier '=' '_'
+                                | struct_field_specifier '=' expression
+                                ;
+
+struct_field_list               : struct_field
+                                | struct_field_list ',' struct_field
+                                ;
+
+struct_declaration              : WORD ':' 'struct' ';'
+                                | WORD ':' 'struct' '{' struct_field_list '}'
+                                ;
+
+enum_item                       : WORD
+                                | WORD = expression
+                                ;
+
+enum_item_list                  : enum_item
+                                | enum_item_list ',' enum_item
+                                ;
+
+word_type_name                  : WORD ':' type_name
+                                ;
+
+word_type_name_list             : word_type_name
+                                | word_type_name_list word_type_name
+                                ;
+
+function_declaration_specifier  : WORD ':' '(' ')' '->' type_name
+                                | WORD ':' '(' word_type_name_list ')' '->' type_name
+                                | WORD ':' '(' word_type_name_list ',' '...' ')' '->' type_name
+                                ;
+
+function_declaration            : function_declaration_specifier ';'
+                                | function_declaration_specifier compound_statment
+                                ;
+                                
+global_declaration_specifier    : declaration
+                                | struct_declaration                        
+                                | WORD ':' 'enum' '{' enum_item_list '}'
+                                | WORD ':' 'union' '{' struct_field_list '}'
+                                | function_declaration
+                                ;
+                                                            
+global_declaration              : declaration
+                                | 'static' declaration_specifier
+                                ;
+
+import                          : 'import' STRING_LITERAL ';'
+                                | 'import' STRING_LITERAL 'as' WORD ';'
+                                ;
+
+import_or_global_declaration    : import
+                                | global_declaration
+                                ;
+
+program                         : import_or_global_declaration
+                                | program import_or_global_declaration
+                                ;
