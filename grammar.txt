@@ -24,7 +24,7 @@ unary_expression                : postfix_expression
                                 | '++' unary_expression
                                 | '--' unary_expression
                                 | unary_operator unary_expression
-                                | 'sizeof' unary_expresiion
+                                | 'sizeof' unary_expression
                                 | 'sizeof' type_name
                                 | 'sizeof' '(' type_name ')'
                                 ;
@@ -77,7 +77,7 @@ logical_and_expression          : inclusive_or_expression
                                 ;
 
 logical_or_expression           : logical_and_expression
-   	                            | logical_or_expression '||' logical_and_expression
+                                   | logical_or_expression '||' logical_and_expression
                                 ;
 
 conditional_expression          : logical_or_expression
@@ -89,10 +89,10 @@ assignment_expression           : conditional_expression
                                 ;
 
 assignment_operator             : '=' | '*=' | '/=' | '%=' | '+=' | '-='
-                                | '&=' | '^=' | '|='
+                                | '&=' | '^=' | '|=' | '~='
                                 ;
 
-expression                      : assignment_expresion
+expression                      : assignment_expression
                                 | expression 'as' type_name
                                 ;
 
@@ -134,13 +134,13 @@ declaration                     : WORD ':' type_name ';'
                                 | WORD ':' type_name '=' expression ';'
                                 ;
 
-statement                       : expresion_statement
+statement                       : expression_statement
                                 | jump_statement
                                 | iteration_statement
                                 | labeled_statement
                                 | compound_statement
                                 | if_statement
-                                | 'switch' expresion compound_statement
+                                | 'switch' expression compound_statement
                                 | declaration
                                 ;
 
@@ -149,7 +149,7 @@ statement_list                  : statement
                                 ;
 
 expression_statement            : ';'
-                            	| expression ';'
+                                | expression ';'
                                 ;
 
 compound_statement              : '{' '}'
