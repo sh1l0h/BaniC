@@ -6,6 +6,7 @@ add_executable(${PROJECT_NAME}
     src/utils.c
     src/preprocessor.c
     src/io/log.c    
+    src/data_structures/hash_map.c
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -g)

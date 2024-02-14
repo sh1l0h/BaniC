@@ -28,8 +28,8 @@ static char *get_token(char *input_line, Location *loc)
     return result;
 }
 
-static int preprocess_file(char *input_path, FILE *input_file,
-                           FILE *output_file)
+static int preprocess_file(char *input_path, HashMap *copied_paths,
+                           FILE *input_file, FILE *output_file)
 {
     int result = 0;
 
@@ -91,12 +91,17 @@ static int preprocess_file(char *input_path, FILE *input_file,
                 continue;
             }
 
+            if (hashmap_get(copied_paths, copy_absolute_path) != NULL){
+                free(copy_absolute_path);
+                continue;
+            }
+
+            hashmap_add(copied_paths, copy_absolute_path, copy_absolute_path);
+
             FILE *copy_file = fopen(copy_absolute_path, "r");
 
             if (copy_file == NULL) {
                 log_error_with_loc(&copy_path_loc, "%s: %s.", copy_path, strerror(errno));
-
-                free(copy_absolute_path);
 
                 result = 1;
                 continue;
@@ -104,13 +109,13 @@ static int preprocess_file(char *input_path, FILE *input_file,
 
             fprintf(output_file, "#1 %s\n", copy_path);
 
-            result = preprocess_file(copy_path, copy_file, output_file);
+            result = preprocess_file(copy_path, copied_paths, copy_file, output_file);
             fclose(copy_file);
 
             if (result != 0)
                 log_info_with_loc(&copy_path_loc, "\"%s\" copied here", copy_path);
             else
-                fprintf(output_file, "#%ld %s\n", line_num, input_path);
+                fprintf(output_file, "#%ld %s\n", line_num + 1, input_path);
 
             continue;
         }
@@ -128,7 +133,7 @@ static int preprocess_file(char *input_path, FILE *input_file,
             case '/':
                 if (!inside_str_literal && curr[1] == '/') {
                     *curr = '\0';
-                    goto end_while;
+                    goto end_for;
                 }
                 break;
 
@@ -136,7 +141,7 @@ static int preprocess_file(char *input_path, FILE *input_file,
 
         }
 
-    end_while:
+    end_for:
         fprintf(output_file, "%s", line);
 
     }
@@ -175,7 +180,15 @@ int preprocess(char *input_path, char **output_path)
         return 1;
     }
 
-    int result = preprocess_file(input_path, input_file, output_file);
+    HashMap copied_paths;
+    hashmap_create(&copied_paths, 64, string_hash, string_cmp, 0.8f);
+
+    char *input_path_absolute = realpath(input_path, NULL);
+    hashmap_add(&copied_paths, input_path_absolute, input_path_absolute);
+
+    int result = preprocess_file(input_path, &copied_paths, input_file, output_file);
+
+    hashmap_destroy(&copied_paths, free, NULL);
 
     fclose(input_file);
     fclose(output_file);
