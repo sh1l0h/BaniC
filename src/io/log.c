@@ -1,4 +1,5 @@
 #include "../../include/io/log.h"
+#include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
 
@@ -101,4 +102,6 @@ void log_print_with_location(LogType type, Location *location,
     fputc('\n', stderr);
 
     fflush(stderr);
+
+    free(line);
 }
