@@ -12,6 +12,7 @@ postfix_expression              : primary_expression
                                 | postfix_expression '(' ')'
                                 | postfix_expression '(' argument_expression_list ')'
                                 | postfix_expression '.' WORD
+                                | postfix_expression '::' WORD
                                 | postfix_expression '++'
                                 | postfix_expression '--'
                                 ;
@@ -24,9 +25,6 @@ unary_expression                : postfix_expression
                                 | '++' unary_expression
                                 | '--' unary_expression
                                 | unary_operator unary_expression
-                                | 'sizeof' unary_expression
-                                | 'sizeof' type_name
-                                | 'sizeof' '(' type_name ')'
                                 ;
 
 unary_operator                  : '&' | '*' | '!' | '~' | '-' 
@@ -77,7 +75,7 @@ logical_and_expression          : inclusive_or_expression
                                 ;
 
 logical_or_expression           : logical_and_expression
-                                   | logical_or_expression '||' logical_and_expression
+                                | logical_or_expression '||' logical_and_expression
                                 ;
 
 conditional_expression          : logical_or_expression
@@ -98,11 +96,13 @@ expression                      : assignment_expression
 
 type_specifier                  : 'i8' | 'i16' | 'i32' | 'i64' 
                                 | 'u8' | 'u16' | 'u32' | 'u64' 
-                                | 'float' | 'double' 
+                                | 'f32' | 'f64' 
                                 | 'bool'
                                 | 'void'
                                 | '>' '(' type_name_list ')' -> type_name
                                 | WORD
+                                | WORD '(' type_name_list ')'
+                                | '?' WORD
                                 ;
 
 qualifier_type_specifier        : type_specifier
@@ -137,7 +137,6 @@ declaration                     : WORD ':' type_name ';'
 statement                       : expression_statement
                                 | jump_statement
                                 | iteration_statement
-                                | labeled_statement
                                 | compound_statement
                                 | if_statement
                                 | 'switch' expression compound_statement
@@ -161,8 +160,7 @@ if_statement                    : 'if' expression compound_statement
                                 | 'if' expression compound_statement 'else' if_statement
                                 ;
 
-jump_statement                  : 'goto' IDENTIFIER ';'
-                                | 'continue' ';'
+jump_statement                  : 'continue' ';'
                                 | 'break' ';'
                                 | 'return' ';'
                                 | 'return' expression ';'
@@ -223,11 +221,12 @@ global_declaration_specifier    : declaration
                                 ;
                                                             
 global_declaration              : declaration
-                                | 'static' declaration_specifier
+                                | 'private' declaration_specifier
                                 ;
 
-import                          : 'import' STRING_LITERAL ';'
-                                | 'import' STRING_LITERAL 'as' WORD ';'
+import                          : 'import' STRING_LITERAL
+                                | 'import' STRING_LITERAL 'as' WORD
+                                | 'import' STRING_LITERAL 'as' '_'
                                 ;
 
 import_or_global_declaration    : import
