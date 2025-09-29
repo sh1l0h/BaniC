@@ -1,12 +1,8 @@
 import std
 
-list: struct( {
-    arr: []?T
-}
-
-main: () -> i32 
+main: () -> i32
 {
-    std::printf(" 
+    std::printf("Hello World\n");
 
     return 0;
 }
