@@ -1,7 +1,8 @@
 primary_expression              : WORD
-                                | CONSTANT
+                                | INT
+                                | FLOAT
                                 | STRING_LITERAL
-                                | CHAR_LITERAL 
+                                | CHAR_LITERAL
                                 | 'null'
                                 | 'true' | 'false'
                                 | '(' expression ')'
@@ -27,7 +28,7 @@ unary_expression                : postfix_expression
                                 | unary_operator unary_expression
                                 ;
 
-unary_operator                  : '&' | '*' | '!' | '~' | '-' 
+unary_operator                  : '&' | '*' | '!' | '~' | '-'
                                 ;
 
 multiplicative_expression       : unary_expression
@@ -94,9 +95,9 @@ expression                      : assignment_expression
                                 | expression 'as' type_name
                                 ;
 
-type_specifier                  : 'i8' | 'i16' | 'i32' | 'i64' 
-                                | 'u8' | 'u16' | 'u32' | 'u64' 
-                                | 'f32' | 'f64' 
+type_specifier                  : 'i8' | 'i16' | 'i32' | 'i64'
+                                | 'u8' | 'u16' | 'u32' | 'u64'
+                                | 'f32' | 'f64'
                                 | 'bool'
                                 | 'void'
                                 | '>' '(' type_name_list ')' -> type_name
@@ -121,7 +122,7 @@ qualifier_pointer_or_array_list : qualifier_pointer_or_array
                                 | qualifier_pointer_or_array_list qualifier_pointer_or_array
                                 ;
 
-type_name                       : qualifier_type_specifier 
+type_name                       : qualifier_type_specifier
                                 | qualifier_pointer_or_array_list qualifier_type_speciafier
                                 ;
 
@@ -129,7 +130,7 @@ type_name_list                  : type_name
                                 | type_name_list ',' type_name
                                 ;
 
-declaration                     : WORD ':' type_name ';' 
+declaration                     : WORD ':' type_name ';'
                                 | WORD ':' '=' expression ';'
                                 | WORD ':' type_name '=' expression ';'
                                 ;
@@ -212,14 +213,14 @@ function_declaration_specifier  : WORD ':' '(' ')' '->' type_name
 function_declaration            : function_declaration_specifier ';'
                                 | function_declaration_specifier compound_statment
                                 ;
-                                
+
 global_declaration_specifier    : declaration
-                                | struct_declaration                        
+                                | struct_declaration
                                 | WORD ':' 'enum' '{' enum_item_list '}'
                                 | WORD ':' 'union' '{' struct_field_list '}'
                                 | function_declaration
                                 ;
-                                                            
+
 global_declaration              : declaration
                                 | 'private' declaration_specifier
                                 ;
